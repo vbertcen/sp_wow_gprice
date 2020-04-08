@@ -29,6 +29,17 @@ interval = 3
 threshold = d(0.97)
 
 
+# def debug_html():
+#     w7881_html = requests.get(url=w7881_url, headers=headers)
+#     w7881_selector = etree.HTML(w7881_html.content)
+#
+#     w7881_unit_price_i = w7881_selector.xpath('/html/body/div[4]/div[8]/div[1]/div/div[3]/p/em')
+#     w7881_price_i = w7881_selector.xpath('/html/body/div[4]/div[8]/div[1]/div/div[2]/h5')
+#     w7881_1 = w7881_unit_price_i[0].text.strip()
+#     w7881_2 = w7881_price_i[0].text.replace("¥", '').strip()
+#     print('%s,%s' % (w7881_1, w7881_2))
+
+
 def data_core():
     uu898_html = requests.get(url=uu898_url, headers=headers)
     uu898_selector = etree.HTML(uu898_html.content)
@@ -48,7 +59,15 @@ def data_core():
     dd373_1 = dd373_unit_price_i[0].text.replace("元/金", '').strip()
     dd373_2 = dd373_price_i[0].text.strip()
 
-    return {(uu898_1, uu898_2, 'uu898'), (dd373_1, dd373_2, 'dd373')}
+    w7881_html = requests.get(url=w7881_url, headers=headers)
+    w7881_selector = etree.HTML(w7881_html.content)
+
+    w7881_unit_price_i = w7881_selector.xpath('/html/body/div[4]/div[8]/div[1]/div/div[3]/p/em')
+    w7881_price_i = w7881_selector.xpath('/html/body/div[4]/div[8]/div[1]/div/div[2]/h5')
+    w7881_1 = w7881_unit_price_i[0].text.strip()
+    w7881_2 = w7881_price_i[0].text.replace("¥", '').strip()
+
+    return {(uu898_1, uu898_2, 'uu898'), (dd373_1, dd373_2, 'dd373'), (w7881_1, w7881_2, '7881')}
 
 
 def send_mail(msg, title):
@@ -94,10 +113,10 @@ def start():
                 subject = subject + '; ' + '平台%s: %s元/G，价格%s元' % (platform, unit_price, sale_price)
             flag = True
         else:
-            print("%s,金额=%s,平台=%s,近期均价=%s,阈值=%d" % (now, unit_price, platform, gprice_avg, threshold))
+            print("%s,金额=%s,平台=%s,近期均价=%s,阈值=%f" % (now, unit_price, platform, gprice_avg, threshold))
 
     if flag is True:
-        send_mail("DD373_Lowest_Realtime_Price", subject)
+        send_mail("Lowest_Realtime_Price", subject)
 
     cursor.close()
     conn.commit()

@@ -95,7 +95,7 @@ def start():
     subject = ''
     cursor = conn.cursor()
     cursor.execute(
-        "select avg(unit_price) from gprice_list  where rec_time>=date_sub(rec_time,INTERVAL %d HOUR)" % interval)
+        "select avg(unit_price) from gprice_list  where rec_time>=date_sub(now(),INTERVAL %d HOUR)" % interval)
     gprice_avg = cursor.fetchall()[0][0]
 
     for i in result:

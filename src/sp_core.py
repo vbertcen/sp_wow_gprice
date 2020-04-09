@@ -97,6 +97,10 @@ def start():
     cursor.execute(
         "select avg(unit_price) from gprice_list  where rec_time>=date_sub(now(),INTERVAL %d HOUR)" % interval)
     gprice_avg = cursor.fetchall()[0][0]
+    if gprice_avg is None:
+        cursor.execute(
+            "select avg(unit_price) from gprice_list ")
+        gprice_avg = cursor.fetchall()[0][0]
 
     for i in result:
         unit_price = i[0]

@@ -26,7 +26,7 @@ mail_pass = "NIPNFZBDAXPDZZEY"
 sender = "vbertcenhz@163.com"
 receiver = "vbertcenhz@163.com"
 interval = 3
-threshold = d(0.97)
+threshold = d(0.96)
 
 
 # def debug_html():

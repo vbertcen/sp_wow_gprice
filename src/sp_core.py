@@ -29,15 +29,16 @@ interval = 3
 threshold = d(0.96)
 
 
-# def debug_html():
-#     w7881_html = requests.get(url=w7881_url, headers=headers)
-#     w7881_selector = etree.HTML(w7881_html.content)
-#
-#     w7881_unit_price_i = w7881_selector.xpath('/html/body/div[4]/div[8]/div[1]/div/div[3]/p/em')
-#     w7881_price_i = w7881_selector.xpath('/html/body/div[4]/div[8]/div[1]/div/div[2]/h5')
-#     w7881_1 = w7881_unit_price_i[0].text.strip()
-#     w7881_2 = w7881_price_i[0].text.replace("¥", '').strip()
-#     print('%s,%s' % (w7881_1, w7881_2))
+def debug_html():
+    w7881_html = requests.get(url=dd373_url, headers=headers)
+    w7881_selector = etree.HTML(w7881_html.content)
+
+    w7881_unit_price_i = w7881_selector.xpath(
+        '/html/body/section[2]/div/div[1]/div[4]/div[4]/div[1]/div[3]/div[5]/div[2]/a')
+
+    w7881_1 = w7881_unit_price_i[0].attrib['href']
+
+    print('http:%s' % w7881_1)
 
 
 def data_core():
@@ -56,18 +57,21 @@ def data_core():
 
     dd373_unit_price_i = dd373_selector.xpath('//*[@id="biz_content_1"]/div[3]/div[5]/div[1]/p[2]')
     dd373_price_i = dd373_selector.xpath('//*[@id="biz_content_1"]/div[3]/div[2]/div/strong/span')
+    dd373_buy_url = dd373_selector.xpath('/html/body/section[2]/div/div[1]/div[4]/div[4]/div[1]/div[3]/div[5]/div[2]/a')
     dd373_1 = dd373_unit_price_i[0].text.replace("元/金", '').strip()
     dd373_2 = dd373_price_i[0].text.strip()
+    dd373_3 = dd373_buy_url[0].attrib['href']
 
     w7881_html = requests.get(url=w7881_url, headers=headers)
     w7881_selector = etree.HTML(w7881_html.content)
 
-    w7881_unit_price_i = w7881_selector.xpath('/html/body/div[4]/div[8]/div[1]/div/div[3]/p/em')
-    w7881_price_i = w7881_selector.xpath('/html/body/div[4]/div[8]/div[1]/div/div[2]/h5')
+    w7881_unit_price_i = w7881_selector.xpath('/html/body/div[6]/div[3]/div[1]/div/div[3]/p/em')
+    w7881_price_i = w7881_selector.xpath('/html/body/div[6]/div[3]/div[1]/div/div[2]/h5')
     w7881_1 = w7881_unit_price_i[0].text.strip()
     w7881_2 = w7881_price_i[0].text.replace("¥", '').strip()
 
-    return {(uu898_1, uu898_2, 'uu898'), (dd373_1, dd373_2, 'dd373'), (w7881_1, w7881_2, '7881')}
+    return {(uu898_1, uu898_2, 'uu898', uu898_url), (dd373_1, dd373_2, 'dd373', dd373_3),
+            (w7881_1, w7881_2, '7881', w7881_url)}
 
 
 def send_mail(msg, title):
@@ -106,6 +110,7 @@ def start():
         unit_price = i[0]
         sale_price = i[1]
         platform = i[2]
+        url = i[3]
         sql = "insert into gprice_list values(null,'%s',%s,%s,now())" % (platform, unit_price, sale_price)
         cursor.execute(sql)
 
@@ -120,7 +125,7 @@ def start():
             print("%s,金额=%s,平台=%s,近期均价=%s,阈值=%f" % (now, unit_price, platform, gprice_avg, threshold))
 
     if flag is True:
-        send_mail("Lowest_Realtime_Price", subject)
+        send_mail("Lowest_Realtime_Price!\n%s" % url, subject)
 
     cursor.close()
     conn.commit()
@@ -129,5 +134,6 @@ def start():
 
 # start()
 schedualer = BlockingScheduler()
-schedualer.add_job(start, 'cron', hour='8-23', minute='*/3')
+schedualer.add_job(start, 'cron', hour='8-23', minute='*/3',max_instances=10)
 schedualer.start()
+# debug_html()

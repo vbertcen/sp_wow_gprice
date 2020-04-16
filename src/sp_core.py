@@ -70,7 +70,7 @@ def data_core():
     w7881_1 = w7881_unit_price_i[0].text.strip()
     w7881_2 = w7881_price_i[0].text.replace("¥", '').strip()
 
-    return {(uu898_1, uu898_2, 'uu898', uu898_url), (dd373_1, dd373_2, 'dd373', dd373_3),
+    return {(uu898_1, uu898_2, 'uu898', uu898_url), (dd373_1, dd373_2, 'dd373', 'http://%s' % dd373_3),
             (w7881_1, w7881_2, '7881', w7881_url)}
 
 
@@ -97,6 +97,7 @@ def start():
     result = data_core()
     flag = False
     subject = ''
+    buy_url = ''
     cursor = conn.cursor()
     cursor.execute(
         "select avg(unit_price) from gprice_list  where rec_time>=date_sub(now(),INTERVAL %d HOUR)" % interval)
@@ -115,17 +116,19 @@ def start():
         cursor.execute(sql)
 
         if d(unit_price) < d(gprice_avg) * threshold:
-            print("%s, 有低价！！！金额=%s元/G" % (now, unit_price))
+            print("%s, %s有低价！！！金额=%s元/G" % (now, platform, unit_price))
             if subject == '':
                 subject = '平台%s: %s元/G，价格%s元' % (platform, unit_price, sale_price)
+                buy_url = url
             else:
                 subject = subject + '; ' + '平台%s: %s元/G，价格%s元' % (platform, unit_price, sale_price)
+                buy_url = buy_url + '\n' + url
             flag = True
         else:
             print("%s,金额=%s,平台=%s,近期均价=%s,阈值=%f" % (now, unit_price, platform, gprice_avg, threshold))
 
     if flag is True:
-        send_mail("Lowest_Realtime_Price!\n%s" % url, subject)
+        send_mail("Lowest_Realtime_Price!\n%s" % buy_url, subject)
 
     cursor.close()
     conn.commit()
@@ -134,6 +137,6 @@ def start():
 
 # start()
 schedualer = BlockingScheduler()
-schedualer.add_job(start, 'cron', hour='8-23', minute='*/3',max_instances=10)
+schedualer.add_job(start, 'cron', hour='8-23', minute='*/3', max_instances=10)
 schedualer.start()
 # debug_html()

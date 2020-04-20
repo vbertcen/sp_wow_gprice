@@ -26,7 +26,7 @@ mail_pass = "NIPNFZBDAXPDZZEY"
 sender = "vbertcenhz@163.com"
 receiver = "vbertcenhz@163.com"
 interval = 3
-threshold = d(0.96)
+threshold = d(0.92)
 
 
 def debug_html():
@@ -125,7 +125,7 @@ def start():
                 buy_url = buy_url + '\n' + url
             flag = True
         else:
-            print("%s,金额=%s,平台=%s,近期均价=%s,阈值=%f" % (now, unit_price, platform, gprice_avg, threshold))
+            print("%s,金额=%s,平台=%s,近期均价=%s,阈值=%f" % (now, unit_price, platform, gprice_avg, threshold * d(gprice_avg)))
 
     if flag is True:
         send_mail("Lowest_Realtime_Price!\n%s" % buy_url, subject)

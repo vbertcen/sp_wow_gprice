@@ -26,7 +26,7 @@ mail_pass = "NIPNFZBDAXPDZZEY"
 sender = "vbertcenhz@163.com"
 receiver = "vbertcenhz@163.com"
 interval = 3
-threshold = d(0.92)
+threshold = d(0.94)
 
 
 def debug_html():
@@ -70,7 +70,7 @@ def data_core():
     w7881_1 = w7881_unit_price_i[0].text.strip()
     w7881_2 = w7881_price_i[0].text.replace("¥", '').strip()
 
-    return {(uu898_1, uu898_2, 'uu898', uu898_url), (dd373_1, dd373_2, 'dd373', 'http://%s' % dd373_3),
+    return {(uu898_1, uu898_2, 'uu898', uu898_url), (dd373_1, dd373_2, 'dd373', 'http:%s' % dd373_3),
             (w7881_1, w7881_2, '7881', w7881_url)}
 
 
